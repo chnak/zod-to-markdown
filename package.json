@@ -1,5 +1,5 @@
 {
-  "name": "zod-to-markdown",
+  "name": "@chnak/zod-to-markdown",
   "version": "1.0.1",
   "description": "A utility function to convert Zod schemas to Markdown documentation",
   "main": "lib/index.js",
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/O6lvl4/zod-to-markdown#readme",
   "dependencies": {
-    "zod": "^3.0.0"
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
