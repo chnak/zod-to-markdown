@@ -4,6 +4,9 @@
   "description": "A utility function to convert Zod schemas to Markdown documentation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -19,12 +22,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/O6lvl4/zod-to-markdown.git"
+    "url": "https://github.com/chnak/zod-to-markdown.git"
   },
   "bugs": {
-    "url": "https://github.com/O6lvl4/zod-to-markdown/issues"
+    "url": "https://github.com/chnak/zod-to-markdown/issues"
   },
-  "homepage": "https://github.com/O6lvl4/zod-to-markdown#readme",
+  "homepage": "https://github.com/chnak/zod-to-markdown#readme",
   "dependencies": {
     "zod": "^3.24.0"
   },
