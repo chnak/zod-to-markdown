@@ -1,6 +1,6 @@
 # zod-to-markdown
 
-将 Zod schema 转换为 Markdown 文档的工具函数。
+将 Zod schema 转换为 Markdown 文档的工具函数，支持两种输出格式：树状列表和表格。
 
 ## 安装
 
@@ -13,7 +13,7 @@ npm install @chnak/zod-to-markdown
 ### ESM / TypeScript
 
 ```typescript
-import { zodSchemaToMarkdown } from '@chnak/zod-to-markdown';
+import { zodSchemaToMarkdown, zodSchemaToTable } from '@chnak/zod-to-markdown';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -21,14 +21,19 @@ const schema = z.object({
   age: z.number(),
 });
 
+// 树状格式
 const markdown = zodSchemaToMarkdown(schema);
 console.log(markdown);
+
+// 表格格式
+const table = zodSchemaToTable(schema);
+console.log(table);
 ```
 
 ### CommonJS / Node.js
 
 ```javascript
-const { zodSchemaToMarkdown } = require('@chnak/zod-to-markdown');
+const { zodSchemaToMarkdown, zodSchemaToTable } = require('@chnak/zod-to-markdown');
 const { z } = require('zod');
 
 const schema = z.object({
@@ -37,16 +42,29 @@ const schema = z.object({
 });
 
 const markdown = zodSchemaToMarkdown(schema);
+const table = zodSchemaToTable(schema);
 console.log(markdown);
+console.log(table);
 ```
 
 ### 输出结果
+
+**树状格式 (`zodSchemaToMarkdown`)**：
 
 ```markdown
 - name
   - String
 - age
   - Number
+```
+
+**表格格式 (`zodSchemaToTable`)**：
+
+```markdown
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| name | String | - |
+| age | Number | - |
 ```
 
 ## 支持的 Zod 类型
@@ -161,6 +179,49 @@ console.log(zodSchemaToMarkdown(transformedSchema));
   - String
 ```
 
+### 表格格式示例
+
+```typescript
+import { z } from 'zod';
+
+const userSchema = z.object({
+  id: z.string().uuid().describe('用户ID'),
+  name: z.string().describe('姓名'),
+  profile: z.object({
+    bio: z.string().describe('个人简介'),
+    avatar: z.string().describe('头像URL'),
+  }).describe('用户资料'),
+  tags: z.array(z.string()).describe('标签'),
+  skills: z.record(z.string(), z.number()).describe('技能评分'),
+});
+
+console.log(zodSchemaToTable(userSchema));
+```
+
+输出：
+```markdown
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| id | String | 用户ID |
+| name | String | 姓名 |
+| profile.bio | String | 个人简介 |
+| profile.avatar | String | 头像URL |
+| tags[] | Array<String> | 标签 |
+| skills | Record<String, Number> | 技能评分 |
+```
+
+### 路径格式说明
+
+表格格式使用点 `.` 和 `[]` 表示嵌套结构：
+
+| 格式 | 含义 | 示例 |
+|------|------|------|
+| `field` | 普通字段 | `name` |
+| `parent.child` | 对象嵌套 | `profile.bio` |
+| `field[]` | 数组 | `tags[]` |
+| `array[].field` | 对象数组的字段 | `users[].name` |
+| `a[].b[].c` | 多层嵌套 | `departments[].employees[].name` |
+
 ## API
 
 ### `zodSchemaToMarkdown(schema, indentLevel?)`
@@ -170,7 +231,15 @@ console.log(zodSchemaToMarkdown(transformedSchema));
 | `schema` | `z.ZodTypeAny` | 要转换的 Zod schema |
 | `indentLevel` | `number` | 初始缩进级别（默认: `0`） |
 
-返回转换后的 Markdown 字符串。
+返回树状格式的 Markdown 字符串。
+
+### `zodSchemaToTable(schema)`
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `schema` | `z.ZodTypeAny` | 要转换的 Zod schema（仅支持 ZodObject） |
+
+返回表格格式的 Markdown 字符串。非 ZodObject 类型会回退到树状格式。
 
 ## License
 

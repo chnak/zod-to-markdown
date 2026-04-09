@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { zodSchemaToMarkdown } from './index';
+import { zodSchemaToMarkdown, zodSchemaToTable } from './index';
 
 describe('zodSchemaToMarkdown', () => {
   it('should convert a simple object schema to markdown', () => {
@@ -172,5 +172,104 @@ describe('zodSchemaToMarkdown', () => {
 `;
 
     expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+});
+
+describe('zodSchemaToTable', () => {
+  it('should convert a simple object schema to table', () => {
+    const schema = z.object({
+      name: z.string(),
+      age: z.number(),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| name | String | - |
+| age | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with optional and nullable to table', () => {
+    const schema = z.object({
+      name: z.string().optional(),
+      email: z.string().nullable(),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| name | Optional<String> | - |
+| email | Nullable<String> | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with enum to table', () => {
+    const schema = z.object({
+      role: z.enum(['admin', 'user', 'guest']),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| role | Enum(admin | user | guest) | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with array to table', () => {
+    const schema = z.object({
+      tags: z.array(z.string()),
+      scores: z.array(z.number()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| tags[] | Array<String> | - |
+| scores[] | Array<Number> | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with description to table', () => {
+    const schema = z.object({
+      name: z.string().describe('用户名称'),
+      age: z.number().describe('用户年龄'),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| name | String | 用户名称 |
+| age | Number | 用户年龄 |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with literal to table', () => {
+    const schema = z.object({
+      status: z.literal('active'),
+      count: z.literal(1),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| status | Literal("active") | - |
+| count | Literal(1) | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should fallback to markdown for non-object schema', () => {
+    const schema = z.string();
+
+    const expected = `- String
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
   });
 });
