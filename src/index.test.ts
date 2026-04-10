@@ -272,4 +272,210 @@ describe('zodSchemaToTable', () => {
 
     expect(zodSchemaToTable(schema)).toBe(expected);
   });
+
+  it('should convert object schema with union to table', () => {
+    const schema = z.object({
+      type: z.union([z.string(), z.number()]),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| type (option 1) | String | - |
+| type (option 2) | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with union of objects to table', () => {
+    const schema = z.object({
+      data: z.union([
+        z.object({ name: z.string() }),
+        z.object({ age: z.number() }),
+      ]),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| data (option 1): name | String | - |
+| data (option 2): age | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with discriminated union to table', () => {
+    const schema = z.object({
+      message: z.discriminatedUnion('role', [
+        z.object({ role: z.literal('user'), name: z.string() }),
+        z.object({ role: z.literal('admin'), level: z.number() }),
+      ]),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| message (option 1): role | Literal("user") | - |
+| message (option 1): name | String | - |
+| message (option 2): role | Literal("admin") | - |
+| message (option 2): level | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with intersection to table', () => {
+    const schema = z.object({
+      merged: z.object({ a: z.string() }).and(z.object({ b: z.number() })),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| merged: a (Left) | String | - |
+| merged: b (Right) | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with optional of union to table', () => {
+    const schema = z.object({
+      value: z.string().optional(),
+      data: z.union([z.string(), z.number()]).optional(),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| value | Optional<String> | - |
+| data (option 1) | String | - |
+| data (option 2) | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with array of union to table', () => {
+    const schema = z.object({
+      items: z.array(z.union([z.string(), z.number()])),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| items[] (option 1) | String | - |
+| items[] (option 2) | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert union with optional object to table', () => {
+    const schema = z.object({
+      data: z.union([
+        z.object({ name: z.string() }).optional(),
+        z.object({ age: z.number() }),
+      ]),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| data (option 1): name | Optional<String> | - |
+| data (option 2): age | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert array of union with objects to table', () => {
+    const schema = z.object({
+      items: z.array(z.union([
+        z.object({ a: z.string() }),
+        z.object({ b: z.number() }),
+      ])),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| items[].a (option 1) | String | - |
+| items[].b (option 2) | Number | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodMap to table', () => {
+    const schema = z.object({
+      map: z.map(z.string(), z.number()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| map | Map<String, Number> | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodSet to table', () => {
+    const schema = z.object({
+      set: z.set(z.string()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| set | Set<String> | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodAny to table', () => {
+    const schema = z.object({
+      any: z.any(),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| any | Any | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodLazy to table', () => {
+    const schema = z.object({
+      lazy: z.lazy(() => z.string()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| lazy | Lazy(ZodString) | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodFunction to table', () => {
+    const schema = z.object({
+      fn: z.function().args(z.string()).returns(z.number()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| fn | Function(Tuple(String) => Number) | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
+
+  it('should convert object schema with ZodPromise to table', () => {
+    const schema = z.object({
+      promise: z.promise(z.string()),
+    });
+
+    const expected = `| 字段 | 类型 | 描述 |
+|------|------|------|
+| promise | Promise<String> | - |
+`;
+
+    expect(zodSchemaToTable(schema)).toBe(expected);
+  });
 });
