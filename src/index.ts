@@ -587,6 +587,34 @@ export function zodSchemaToMarkdown(schema: z.ZodTypeAny, indentLevel: number = 
       markdown += `${indent}- Unknown\n`;
     } else if (isZodType(schema, 'ZodVoid')) {
       markdown += `${indent}- Void\n`;
+    } else if (isZodType(schema, 'ZodAny')) {
+      markdown += `${indent}- Any\n`;
+    } else if (isZodType(schema, 'ZodMap')) {
+      const mapSchema = schema as z.ZodMap<z.ZodTypeAny, z.ZodTypeAny>;
+      markdown += `${indent}- Map\n`;
+      markdown += `${indent}  Key:\n`;
+      markdown += zodSchemaToMarkdown(mapSchema.keySchema, indentLevel + 2);
+      markdown += `${indent}  Value:\n`;
+      markdown += zodSchemaToMarkdown(mapSchema.valueSchema, indentLevel + 2);
+    } else if (isZodType(schema, 'ZodSet')) {
+      markdown += `${indent}- Set\n`;
+      markdown += zodSchemaToMarkdown((schema as z.ZodSet<z.ZodTypeAny>)._def.valueType, indentLevel + 1);
+    } else if (isZodType(schema, 'ZodLazy')) {
+      markdown += `${indent}- Lazy\n`;
+    } else if (isZodType(schema, 'ZodFunction')) {
+      const fnSchema = schema as z.ZodFunction<any, any>;
+      markdown += `${indent}- Function\n`;
+      if (fnSchema._def.args) {
+        markdown += `${indent}  Args:\n`;
+        markdown += zodSchemaToMarkdown(fnSchema._def.args, indentLevel + 2);
+      }
+      if (fnSchema._def.returns) {
+        markdown += `${indent}  Returns:\n`;
+        markdown += zodSchemaToMarkdown(fnSchema._def.returns, indentLevel + 2);
+      }
+    } else if (isZodType(schema, 'ZodPromise')) {
+      markdown += `${indent}- Promise\n`;
+      markdown += zodSchemaToMarkdown((schema as z.ZodPromise<z.ZodTypeAny>)._def.type, indentLevel + 1);
     } else {
       markdown += `${indent}- Type: ${(schema._def as any).typeName || schema.constructor.name}\n`;
     }

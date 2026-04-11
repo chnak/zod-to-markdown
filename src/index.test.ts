@@ -173,6 +173,72 @@ describe('zodSchemaToMarkdown', () => {
 
     expect(zodSchemaToMarkdown(schema)).toBe(expected);
   });
+
+  it('should convert ZodAny to markdown', () => {
+    const schema = z.any();
+
+    const expected = `- Any
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+
+  it('should convert ZodMap to markdown', () => {
+    const schema = z.map(z.string(), z.number());
+
+    const expected = `- Map
+  Key:
+    - String
+  Value:
+    - Number
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+
+  it('should convert ZodSet to markdown', () => {
+    const schema = z.set(z.string());
+
+    const expected = `- Set
+  - String
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+
+  it('should convert ZodLazy to markdown', () => {
+    const schema = z.lazy(() => z.string());
+
+    const expected = `- Lazy
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+
+  it('should convert ZodFunction to markdown', () => {
+    const schema = z.function().args(z.string()).returns(z.number());
+
+    const expected = `- Function
+  Args:
+    - Tuple
+      [0]:
+        - String
+  Returns:
+    - Number
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
+
+  it('should convert ZodPromise to markdown', () => {
+    const schema = z.promise(z.string());
+
+    const expected = `- Promise
+  - String
+`;
+
+    expect(zodSchemaToMarkdown(schema)).toBe(expected);
+  });
 });
 
 describe('zodSchemaToTable', () => {

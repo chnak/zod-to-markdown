@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd D:/Date/20260321/zod-to-markdown && npm test)"
+      "Bash(cd D:/Date/20260321/zod-to-markdown && npm test)",
+      "Bash(npm test:*)"
     ]
   }
 }
